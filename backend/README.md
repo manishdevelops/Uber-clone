@@ -149,6 +149,8 @@ The request body should be sent in JSON format with the following fields:
 
 - `email`: Must be a valid email address.
 - `password`: Must be at least 6 characters long.
+
+
 ### GET `/users/profile`
 
 This endpoint is used to retrieve the profile of the currently logged-in user.
