@@ -92,6 +92,7 @@ module.exports.logoutUser = async (req, res, next) => {
 
 exports.forgotPassword = async (req, res) => {
     const { email, frontendUrl } = req.body;
+
     const user = await userModel.findOne({ email });
 
     if (!user) return res.status(404).json({ message: 'User no longer exist.' });
