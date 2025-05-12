@@ -408,3 +408,134 @@ The request body should be sent in JSON format with the following fields:
 - `vehicle.plate`: Must be at least 3 characters long.
 - `vehicle.capacity`: Must be an integer and at least 1.
 - `vehicle.vehicleType`: Must be one of the following: `car`, `motorcycle`, or `auto`.
+
+### POST `/captains/login`
+
+This endpoint is used to log in an existing captain.
+
+#### Request Body
+
+The request body should be sent in JSON format with the following fields:
+
+```json
+{
+  "email": "string (required, valid email format)",
+  "password": "string (required, min length: 6)"
+}
+```
+
+#### Example Request
+
+```json
+{
+  "email": "janedoe@example.com",
+  "password": "password123"
+}
+```
+
+#### Responses
+
+| Status Code | Description                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------- |
+| 200         | Captain successfully logged in. Returns a JSON object with the captain's token and details. |
+| 400         | Validation error. Returns an error message.                                                 |
+| 401         | Invalid email or password. Returns an error message.                                        |
+
+#### Example Success Response
+
+```json
+{
+  "token": "jwt-token-string",
+  "captain": {
+    "_id": "captain-id",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "janedoe@example.com",
+    "vehicle": {
+      "color": "Red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+#### Example Error Response
+
+```json
+{
+  "errors": [
+    {
+      "msg": "Invalid Email",
+      "param": "email",
+      "location": "body"
+    }
+  ]
+}
+```
+
+---
+
+### GET `/captains/profile`
+
+This endpoint is used to retrieve the profile of the currently logged-in captain.
+
+#### Headers
+
+- `Authorization`: Bearer token (required)
+
+#### Responses
+
+| Status Code | Description                                |
+| ----------- | ------------------------------------------ |
+| 200         | Successfully retrieved captain profile.    |
+| 401         | Unauthorized. Token is missing or invalid. |
+
+#### Example Success Response
+
+```json
+{
+  "captain": {
+    "_id": "captain-id",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "janedoe@example.com",
+    "vehicle": {
+      "color": "Red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+---
+
+### GET `/captains/logout`
+
+This endpoint is used to log out the currently logged-in captain.
+
+#### Headers
+
+- `Authorization`: Bearer token (required)
+
+#### Responses
+
+| Status Code | Description                                |
+| ----------- | ------------------------------------------ |
+| 200         | Successfully logged out.                   |
+| 401         | Unauthorized. Token is missing or invalid. |
+
+#### Example Success Response
+
+```json
+{
+  "message": "Logout successfully"
+}
+```
