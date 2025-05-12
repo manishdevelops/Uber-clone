@@ -313,3 +313,98 @@ The request body should be sent in JSON format with the following fields:
   "message": "Token is invalid or has expired"
 }
 ```
+
+### POST `/captains/register`
+
+This endpoint is used to register a new captain.
+
+#### Request Body
+
+The request body should be sent in JSON format with the following fields:
+
+```json
+{
+  "fullname": {
+    "firstname": "string (required, min length: 3)",
+    "lastname": "string (optional, min length: 3)"
+  },
+  "email": "string (required, valid email format)",
+  "password": "string (required, min length: 6)",
+  "vehicle": {
+    "color": "string (required, min length: 3)",
+    "plate": "string (required, min length: 3)",
+    "capacity": "integer (required, min: 1)",
+    "vehicleType": "string (required, one of: 'car', 'motorcycle', 'auto')"
+  }
+}
+```
+
+#### Example Request
+
+```json
+{
+  "fullname": {
+    "firstname": "Jane",
+    "lastname": "Doe"
+  },
+  "email": "janedoe@example.com",
+  "password": "password123",
+  "vehicle": {
+    "color": "Red",
+    "plate": "ABC123",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+#### Responses
+
+| Status Code | Description                                                                        |
+| ----------- | ---------------------------------------------------------------------------------- |
+| 201         | Captain successfully registered. Returns a JSON object with the captain's details. |
+| 400         | Validation error or missing fields. Returns an error message.                      |
+
+#### Example Success Response
+
+```json
+{
+  "_id": "captain-id",
+  "fullname": {
+    "firstname": "Jane",
+    "lastname": "Doe"
+  },
+  "email": "janedoe@example.com",
+  "vehicle": {
+    "color": "Red",
+    "plate": "ABC123",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+#### Example Error Response
+
+```json
+{
+  "errors": [
+    {
+      "msg": "First name must be at least 3 characters long",
+      "param": "fullname.firstname",
+      "location": "body"
+    }
+  ]
+}
+```
+
+#### Validation Rules
+
+- `fullname.firstname`: Must be at least 3 characters long.
+- `fullname.lastname`: Optional but must be at least 3 characters long if provided.
+- `email`: Must be a valid email address.
+- `password`: Must be at least 6 characters long.
+- `vehicle.color`: Must be at least 3 characters long.
+- `vehicle.plate`: Must be at least 3 characters long.
+- `vehicle.capacity`: Must be an integer and at least 1.
+- `vehicle.vehicleType`: Must be one of the following: `car`, `motorcycle`, or `auto`.
