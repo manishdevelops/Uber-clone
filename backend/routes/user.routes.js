@@ -22,6 +22,12 @@ router.post('/login', [
 
 router.get('/profile', authMiddleware.authUser, userController.getUserProfile);
 
-router.get('/logout', authMiddleware.authUser, userController.logoutUser)
+router.get('/logout', authMiddleware.authUser, userController.logoutUser);
+
+router.post('/forgot-password', userController.forgotPassword);
+
+router.patch('/reset-password/:token', [
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+], userController.resetPassword);
 
 module.exports = router;
