@@ -1,7 +1,14 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { CaptainDataContext } from '../context/CaptainContext'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const CaptainSignup = () => {
+    const navigate = useNavigate()
+
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [firstName, setFirstName] = useState('')
@@ -12,8 +19,7 @@ const CaptainSignup = () => {
     const [vehicleCapacity, setVehicleCapacity] = useState('')
     const [vehicleType, setVehicleType] = useState('')
 
-
-
+    const { captain, setCaptain } = React.useContext(CaptainDataContext)
 
     const submitHandler = async (e) => {
         e.preventDefault()
@@ -32,7 +38,31 @@ const CaptainSignup = () => {
             }
         }
 
-        console.log(captainData)
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/register`, captainData)
+
+            if (response.status === 201) {
+                const data = response.data
+                setCaptain(data.captain)
+                localStorage.setItem('token', data.token)
+                toast.success('Captain account created successfully!')
+                setTimeout(() => {
+                    navigate('/captain-home')
+                }, 1500);
+            }
+        } catch (error) {
+            const errors = error?.response?.data?.errors
+            if (Array.isArray(errors) && errors.length > 0) {
+                errors.forEach(err => {
+                    toast.error(err.msg || 'Validation error')
+                })
+            } else {
+                toast.error(
+                    error?.response?.data?.message ||
+                    'Failed to create captain account. Please try again.'
+                )
+            }
+        }
 
         setEmail('')
         setFirstName('')
@@ -42,10 +72,11 @@ const CaptainSignup = () => {
         setVehiclePlate('')
         setVehicleCapacity('')
         setVehicleType('')
-
     }
+
     return (
         <div className='max-w-[500px] m-auto py-5 px-5 h-screen flex flex-col justify-between'>
+            <ToastContainer />
             <div>
                 <img className='w-36 h-16 mb-10' src="https://static.vecteezy.com/system/resources/previews/027/127/451/original/uber-logo-uber-icon-transparent-free-png.png" alt="driver-logo" />
 

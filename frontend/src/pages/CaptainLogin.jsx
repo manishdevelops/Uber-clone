@@ -1,35 +1,63 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-// import { UserDataContext } from '../context/UserContext'
-// import { useNavigate } from 'react-router-dom'
-// import axios from 'axios'
+import { CaptainDataContext } from '../context/CaptainContext'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 
 const UserLogin = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [userData, setUserData] = useState({})
 
-    useEffect(() => {
-        console.log(userData)
-    }, [userData])
+    const { captain, setCaptain } = React.useContext(CaptainDataContext)
+    const navigate = useNavigate()
 
-    const submitHandler = (e) => {
+
+
+    const submitHandler = async (e) => {
         e.preventDefault();
 
-        setUserData({
+        const captain = {
             email: email,
-            password: password
-        })
+            password
+        }
 
-        setEmail('')
-        setPassword('')
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captain)
+
+            if (response.status === 200) {
+                const data = response.data
+
+                setCaptain(data.captain)
+                localStorage.setItem('token', data.token)
+                toast.success('Login successful!')
+                setTimeout(() => {
+                    navigate('/captain-home')
+                }, 1500);
+            }
+        } catch (error) {
+            const errors = error?.response?.data?.errors
+            if (Array.isArray(errors) && errors.length > 0) {
+                errors.forEach(err => {
+                    toast.error(err.msg || 'Validation error')
+                })
+            } else {
+                toast.error(
+                    error?.response?.data?.message ||
+                    'Login failed. Please try again.'
+                )
+            }
+        }
+
     }
 
 
     return (
 
         <div className='min-h-screen flex flex-col justify-between bg-white px-4 py-7 sm:px-8 md:px-0'>
+            <ToastContainer />
             <div className="flex flex-col items-center w-full">
                 <div className="w-full max-w-md">
                     <img className='w-36 h-16 mb-10' src="https://static.vecteezy.com/system/resources/previews/027/127/451/original/uber-logo-uber-icon-transparent-free-png.png" alt="driver-logo" />

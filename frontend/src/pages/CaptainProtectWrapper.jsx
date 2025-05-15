@@ -1,62 +1,61 @@
 import { useContext, useEffect, useState } from 'react'
-import { UserDataContext } from '../context/UserContext'
+import { CaptainDataContext } from '../context/CaptainContext'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import axios from 'axios'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 
-const UserProtectWrapper = ({
+const CaptainProtectWrapper = ({
     children
 }) => {
+
     const token = localStorage.getItem('token')
     const navigate = useNavigate()
-    const { user, setUser } = useContext(UserDataContext)
+    const { captain, setCaptain } = useContext(CaptainDataContext)
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         if (!token) {
-            navigate('/login')
-            return
+            navigate('/captain-login')
         }
 
-        axios.get(`${import.meta.env.VITE_BASE_URL}/users/profile`, {
+        //chech 
+        axios.get(`${import.meta.env.VITE_BASE_URL}/captains/profile`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         }).then(response => {
             if (response.status === 200) {
-                setUser(response.data)
+                setCaptain(response.data.captain)
                 setIsLoading(false)
             }
         })
             .catch(err => {
-                console.log(err)
                 toast.error(
                     err?.response?.data?.message ||
                     'Session expired or unauthorized. Please login again.'
                 )
                 localStorage.removeItem('token')
                 setTimeout(() => {
-                    navigate('/login')
+                    navigate('/captain-login')
                 }, 1500);
             })
     }, [token])
 
+
+
     if (isLoading) {
         return (
-            <>
-                <ToastContainer />
-                <div>Loading...</div>
-            </>
+            <div>Loading...</div>
         )
     }
 
+
+
     return (
         <>
-            <ToastContainer />
             {children}
         </>
     )
 }
 
-export default UserProtectWrapper
+export default CaptainProtectWrapper
