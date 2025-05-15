@@ -1,11 +1,19 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useContext } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { UserDataContext } from '../context/UserContext'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const UserSignup = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
+
+    const navigate = useNavigate();
+
+    const { user, setUser } = useContext(UserDataContext)
 
     const submitHandler = async (e) => {
         e.preventDefault()
@@ -17,16 +25,40 @@ const UserSignup = () => {
             email: email,
             password: password
         }
-        console.log(newUser);
 
-        setEmail('')
-        setFirstName('')
-        setLastName('')
-        setPassword('')
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/register`, newUser);
+            console.log(response)
+
+            if (response.status === 201) {
+                const data = response.data
+                setUser(data.user)
+                localStorage.setItem('token', data.token)
+                toast.success('Account created successfully!')
+                setTimeout(() => {
+                    navigate('/home');
+                }, 1500); // delay for 1.5 seconds
+            }
+        } catch (error) {
+            // Handle array of errors from backend
+            const errors = error?.response?.data?.errors;
+            if (Array.isArray(errors) && errors.length > 0) {
+                errors.forEach(err => {
+                    toast.error(err.msg || 'Validation error');
+                });
+            } else {
+                toast.error(
+                    error?.response?.data?.message ||
+                    'Failed to create account. Please try again.'
+                );
+            }
+        }
+
 
     }
     return (
         <div>
+            <ToastContainer />
             <div className='p-7 h-screen max-w-[500px] flex flex-col justify-between m-auto'>
                 <div>
                     <img className='w-16 mb-10' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYQy-OIkA6In0fTvVwZADPmFFibjmszu2A0g&s" alt="" />

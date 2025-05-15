@@ -1,12 +1,18 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
-
+import { UserDataContext } from '../context/UserContext'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const UserLogin = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const { user, setUser } = useContext(UserDataContext)
+    const navigate = useNavigate()
 
-    const submitHandler = (e) => {
+    const submitHandler = async (e) => {
         e.preventDefault();
 
         const userData = {
@@ -14,16 +20,36 @@ const UserLogin = () => {
             password: password
         }
 
-        console.log(userData)
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData)
 
-        setEmail('')
-        setPassword('')
+            if (response.status === 200) {
+                const data = response.data
+                setUser(data.user)
+                localStorage.setItem('token', data.token)
+                toast.success('Login successful!')
+                setTimeout(() => {
+                    navigate('/home');
+                }, 1500); // delay for 1.5 seconds
+            }
+        } catch (error) {
+            const errors = error?.response?.data?.errors
+            if (Array.isArray(errors) && errors.length > 0) {
+                errors.forEach(err => {
+                    toast.error(err.msg || 'Validation error')
+                })
+            } else {
+                toast.error(
+                    error?.response?.data?.message ||
+                    'Login failed. Please try again.'
+                )
+            }
+        }
     }
 
-
     return (
-
         <div className='min-h-screen flex flex-col justify-between bg-white px-4 py-7 sm:px-8 md:px-0'>
+            <ToastContainer />
             <div className="flex flex-col items-center w-full">
                 <div className="w-full max-w-md">
                     <img className='w-16 mb-10' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYQy-OIkA6In0fTvVwZADPmFFibjmszu2A0g&s" alt="" />
